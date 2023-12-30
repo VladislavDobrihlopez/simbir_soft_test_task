@@ -1,4 +1,4 @@
-package com.dobrihlopez.simbir_soft_test_task.core_ui.theme
+package com.dobrihlopez.simbir_soft_test_task.app.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

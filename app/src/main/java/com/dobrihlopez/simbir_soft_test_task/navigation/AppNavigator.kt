@@ -1,4 +1,4 @@
-package com.dobrihlopez.simbir_soft_test_task.app.navigation
+package com.dobrihlopez.simbir_soft_test_task.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
