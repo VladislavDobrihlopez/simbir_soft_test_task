@@ -7,6 +7,7 @@ data class EventUiModel(
     val id: Long,
     val name: String,
     val color: Color,
+    val onColor: Color,
     val dateStart: LocalDateTime,
     val dateFinish: LocalDateTime,
 )

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">simbir_soft_test_task</string>
+    <string name="previous_week">Previous week</string>
+    <string name="next_week">Next week</string>
 </resources>
