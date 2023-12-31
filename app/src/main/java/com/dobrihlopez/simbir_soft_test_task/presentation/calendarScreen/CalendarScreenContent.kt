@@ -15,10 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.dobrihlopez.simbir_soft_test_task.app.theme.LocalSpacing
-import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.NewFinishTime
-import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.NewStartTime
+import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.FinishTime
+import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.StartTime
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.ScheduleChart
-import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.ScheduleChartState
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.WeekSelector
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.rememberScheduleChartState
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.rememberWeekSelectorState
@@ -33,19 +32,31 @@ fun CalendarScreenContent() {
             add(
                 EventUiModel(
                     id = 0,
-                    name = "Wilbert Chapman",
-                    color = Color.White,
-                    onColor = Color.Black,
-                    dateStart = LocalDateTime.now(),
-                    dateFinish = LocalDateTime.now().plusHours(1)
+                    name = "Houston",
+                    dateStart = LocalDateTime.now().minusHours(5),
+                    dateFinish = LocalDateTime.now().minusHours(2)
                 )
             )
             add(
                 EventUiModel(
                     id = 1,
+                    name = "Hello",
+                    dateStart = LocalDateTime.now().minusHours(4),
+                    dateFinish = LocalDateTime.now().minusHours(3)
+                )
+            )
+            add(
+                EventUiModel(
+                    id = 4,
+                    name = "Hello",
+                    dateStart = LocalDateTime.now().minusHours(4).plusMinutes(25),
+                    dateFinish = LocalDateTime.now().minusHours(3).minusMinutes(20)
+                )
+            )
+            add(
+                EventUiModel(
+                    id = 2,
                     name = "Wilbert Chapman",
-                    color = Color.Green,
-                    onColor = Color.Black,
                     dateStart = LocalDateTime.now().minusHours(2),
                     dateFinish = LocalDateTime.now().plusMinutes(30)
                 )
@@ -101,7 +112,7 @@ fun CalendarScreenContent() {
                 onTapItem = { event ->
                     Toast.makeText(context, "$event", Toast.LENGTH_SHORT).show()
                 },
-                onUpdateItem = { eventUiModel: EventUiModel, localTime: NewStartTime, localTime2: NewFinishTime ->
+                onUpdateItem = { eventUiModel: EventUiModel, localTime: StartTime, localTime2: FinishTime ->
                     items.value = items.value.map {
                         if (it.id == eventUiModel.id) it.copy(
                             dateStart = it.dateStart

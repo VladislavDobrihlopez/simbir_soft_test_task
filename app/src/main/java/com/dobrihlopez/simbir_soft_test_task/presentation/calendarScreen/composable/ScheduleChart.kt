@@ -9,7 +9,6 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +18,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
@@ -38,8 +38,11 @@ import kotlin.math.roundToInt
 typealias ScrollPos = Float
 typealias VisibleItemsNumber = Int
 
-typealias NewStartTime = LocalTime
-typealias NewFinishTime = LocalTime
+typealias StartTime = LocalTime
+typealias FinishTime = LocalTime
+
+private typealias EventsToLevel = List<Pair<EventUiModel, Int>>
+private typealias ColorToOnColor = Pair<Color, Color>
 
 @Composable
 fun ScheduleChart(
@@ -47,7 +50,7 @@ fun ScheduleChart(
     onComposableSizeDefined: (IntSize) -> Unit,
     onTransformationChange: (VisibleItemsNumber, ScrollPos) -> Unit,
     onTapItem: (EventUiModel) -> Unit,
-    onUpdateItem: (EventUiModel, NewStartTime, NewFinishTime) -> Unit,
+    onUpdateItem: (EventUiModel, StartTime, FinishTime) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -150,48 +153,53 @@ fun ScheduleChart(
                 )
             }
             // hour column
-            chartState.visibleHourBlocksModels.forEachIndexed { index, event ->
-                val startYPos =
-                    chartState.convertTimeToYPositionInChart(
-                        ScheduleChartState.Companion.EdgeType.VERY_BEGINNING,
+            ScheduleChartState.calculateLevelsOfHovering(chartState.visibleHourBlocksModels)
+                .sortedBy { it.second }
+                .forEachIndexed { index, eventToLayer ->
+                    val (event, layer) = eventToLayer
+                    val startYPos =
+                        chartState.convertTimeToYPositionInChart(
+                            ScheduleChartState.Companion.EdgeType.VERY_BEGINNING,
+                            event
+                        )
+                    val finishYPos = chartState.convertTimeToYPositionInChart(
+                        ScheduleChartState.Companion.EdgeType.END,
                         event
                     )
-                val finishYPos = chartState.convertTimeToYPositionInChart(
-                    ScheduleChartState.Companion.EdgeType.END,
-                    event
-                )
 
-                val startXMargin = ScheduleChartState.TIME_COLUMN_WIDTH_IN_DP.toPx()
-                val size = Size(
-                    chartState.componentWidth - startXMargin - ScheduleChartState.CONTENT_HORIZONTAL_PADDING.toPx(),
-                    (finishYPos - startYPos)
-                )
-                drawRoundRect(
-                    color = event.color,
-                    topLeft = Offset(startXMargin, startYPos),
-                    size = size,
-                    cornerRadius = CornerRadius(25f, 25f),
-                )
-                drawRoundRect(
-                    color = scheme.onSurface,
-                    topLeft = Offset(startXMargin, startYPos),
-                    size = size,
-                    cornerRadius = CornerRadius(25f, 25f),
-                    style = Stroke(width = 1.dp.toPx())
-                )
-                val result = textMeasurer.measure(
-                    event.name,
-                    typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                )
-                drawText(
-                    textLayoutResult = result,
-                    color = event.onColor,
-                    topLeft = Offset(
-                        startXMargin + spacing.spaceLarge.toPx(),
-                        startYPos + spacing.spaceLarge.toPx()
-                    ),
-                )
-            }
+                    val startXMargin = ScheduleChartState.TIME_COLUMN_WIDTH_IN_DP.toPx()
+                    val size = Size(
+                        chartState.componentWidth - startXMargin - ScheduleChartState.CONTENT_HORIZONTAL_PADDING.toPx()
+                                - layer * 7.dp.toPx(),
+                        (finishYPos - startYPos)
+                    )
+
+                    drawRoundRect(
+                        color = chartState.getColor(layer),
+                        topLeft = Offset(startXMargin, startYPos),
+                        size = size,
+                        cornerRadius = CornerRadius(25f, 25f),
+                    )
+                    drawRoundRect(
+                        color = scheme.onSurface,
+                        topLeft = Offset(startXMargin, startYPos),
+                        size = size,
+                        cornerRadius = CornerRadius(25f, 25f),
+                        style = Stroke(width = 1.dp.toPx())
+                    )
+                    val result = textMeasurer.measure(
+                        event.name,
+                        typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                    drawText(
+                        textLayoutResult = result,
+                        color = chartState.getOnColor(layer),
+                        topLeft = Offset(
+                            startXMargin + spacing.spaceLarge.toPx(),
+                            startYPos + spacing.spaceLarge.toPx()
+                        ),
+                    )
+                }
         }
     }
 }
@@ -201,6 +209,12 @@ data class ScheduleChartState(
     val scrolledYaxis: Float = 0f,
     val componentSize: IntSize = IntSize(0, 0),
     val visibleHourBlocks: Int = DEFAULT_NUMBER_OF_VISIBLE_HOURS,
+    val colorsForLevelsOfHovering: List<ColorToOnColor> = listOf(
+        Pair(Color.Green, Color.Black),
+        Pair(Color.Red, Color.White),
+        Pair(Color.Blue, Color.White),
+        Pair(Color.Yellow, Color.Black),
+    )
 ) {
     val componentWidth: Float
         get() = componentSize.width.toFloat()
@@ -229,16 +243,29 @@ data class ScheduleChartState(
             }
         }
 
+    fun getColor(layer: Int): Color {
+        require(layer < colorsForLevelsOfHovering.size)
+        return colorsForLevelsOfHovering[layer].first
+    }
+
+    fun getOnColor(layer: Int): Color {
+        require(layer < colorsForLevelsOfHovering.size)
+        return colorsForLevelsOfHovering[layer].second
+    }
+
     fun getTouchedTopLayerItemIfPersists(touchedArea: Offset): EventUiModel? {
+        var minTimeDiff = Float.MAX_VALUE
+        var item: EventUiModel? = null
         events.forEachIndexed { index, eventUiModel ->
             // add somewhat caching
             val startPos = convertTimeToYPositionInChart(EdgeType.VERY_BEGINNING, eventUiModel)
             val endPos = convertTimeToYPositionInChart(EdgeType.END, eventUiModel)
-            if ((touchedArea.y - scrolledYaxis) in startPos..endPos) {
-                return eventUiModel
+            if ((touchedArea.y - scrolledYaxis) in startPos..endPos && endPos - startPos <= minTimeDiff) {
+                minTimeDiff = endPos - startPos
+                item = eventUiModel
             }
         }
-        return null
+        return item
     }
 
     fun convertTimeToYPositionInChart(edgeType: EdgeType, eventUiModel: EventUiModel): Float {
@@ -253,14 +280,10 @@ data class ScheduleChartState(
         }
     }
 
-    private fun getMinutesFromDate(date: LocalDateTime): Int {
-        return date.hour * 60 + date.minute
-    }
-
     fun convertOffsetYChangeToTime(
         changeAmount: Float,
         eventUiModel: EventUiModel
-    ): Pair<NewStartTime, NewFinishTime> {
+    ): Pair<StartTime, FinishTime> {
         val minutesToBeAdded =
             ((changeAmount / blockHeight) * 60).roundToInt() // might be negative as well as positive
 
@@ -276,6 +299,44 @@ data class ScheduleChartState(
     }
 
     companion object {
+        private fun getMinutesFromDate(date: LocalDateTime): Int {
+            return date.hour * 60 + date.minute
+        }
+
+        fun calculateLevelsOfHovering(events: List<EventUiModel>): EventsToLevel {
+            fun doesInclude(
+                firstEvent: Pair<StartTime, FinishTime>,
+                secondEvent: Pair<StartTime, FinishTime>
+            ): Boolean {
+                return firstEvent.first >= secondEvent.first && firstEvent.second < secondEvent.second
+            }
+
+            val result = mutableListOf<Pair<EventUiModel, Int>>()
+            val items = events.sortedBy {
+                getMinutesFromDate(it.dateFinish) - getMinutesFromDate(it.dateStart)
+            }
+            for (i in items.withIndex()) {
+                var level = 0
+                for (j in i.index + 1 until items.size) {
+                    if (doesInclude(
+                            firstEvent = Pair(
+                                i.value.dateStart.toLocalTime(),
+                                i.value.dateFinish.toLocalTime()
+                            ),
+                            secondEvent = Pair(
+                                items[j].dateStart.toLocalTime(),
+                                items[j].dateFinish.toLocalTime()
+                            )
+                        )
+                    ) {
+                        level++
+                    }
+                }
+                result.add(Pair(i.value, level))
+            }
+            return result
+        }
+
         val TAG = ScheduleChartState::class.java.simpleName
         val CONTENT_HORIZONTAL_PADDING = 4.dp
         const val BLOCKS_IN_TOTAL_IN_SCREEN = 25 // 24 hours a day (European 24h format time)
