@@ -1,5 +1,8 @@
 package com.dobrihlopez.simbir_soft_test_task.navigation
 
+import com.dobrihlopez.simbir_soft_test_task.domain.model.Day
+import com.dobrihlopez.simbir_soft_test_task.domain.model.Month
+import com.dobrihlopez.simbir_soft_test_task.domain.model.Year
 import com.dobrihlopez.simbir_soft_test_task.domain.util.encode
 
 sealed class AppScreen(val route: String) {

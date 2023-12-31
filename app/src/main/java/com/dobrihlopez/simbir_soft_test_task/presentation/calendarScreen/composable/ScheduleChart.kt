@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.dobrihlopez.simbir_soft_test_task.app.theme.LocalSpacing
 import com.dobrihlopez.simbir_soft_test_task.presentation.model.EventUiModel
+import java.time.DateTimeException
 import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.math.roundToInt
@@ -102,9 +103,11 @@ fun ScheduleChart(
                     chartState
                         .getTouchedTopLayerItemIfPersists(change.previousPosition)
                         ?.let { item ->
-                            val newPosition =
-                                chartState.convertOffsetYChangeToTime(dragAmount.y, item)
-                            onUpdateItem(item, newPosition.first, newPosition.second)
+                            chartState
+                                .convertOffsetYChangeToTime(dragAmount.y, item)
+                                ?.let { newPosition ->
+                                    onUpdateItem(item, newPosition.first, newPosition.second)
+                                }
                         }
                 }
             }
@@ -191,14 +194,18 @@ fun ScheduleChart(
                         event.name,
                         typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
-                    drawText(
-                        textLayoutResult = result,
-                        color = chartState.getOnColor(layer),
-                        topLeft = Offset(
-                            startXMargin + spacing.spaceLarge.toPx(),
-                            startYPos + spacing.spaceLarge.toPx()
-                        ),
-                    )
+                    val topPadding = spacing.spaceSmall.toPx()
+
+                    if (result.size.height + topPadding < size.height) { // don't display if there is no place
+                        drawText(
+                            textLayoutResult = result,
+                            color = chartState.getOnColor(layer),
+                            topLeft = Offset(
+                                startXMargin + spacing.spaceLarge.toPx(),
+                                startYPos + topPadding
+                            ),
+                        )
+                    }
                 }
         }
     }
@@ -283,19 +290,25 @@ data class ScheduleChartState(
     fun convertOffsetYChangeToTime(
         changeAmount: Float,
         eventUiModel: EventUiModel
-    ): Pair<StartTime, FinishTime> {
-        val minutesToBeAdded =
-            ((changeAmount / blockHeight) * 60).roundToInt() // might be negative as well as positive
+    ): Pair<StartTime, FinishTime>? {
+        return try {
+            val minutesToBeAdded =
+                ((changeAmount / blockHeight) * 60).roundToInt() // might be negative as well as positive
 
-        val startTimeInMinutes = getMinutesFromDate(eventUiModel.dateStart) + minutesToBeAdded
-        val finishTimeInMinutes = getMinutesFromDate(eventUiModel.dateFinish) + minutesToBeAdded
+            val startTimeInMinutes = getMinutesFromDate(eventUiModel.dateStart) + minutesToBeAdded
+            val finishTimeInMinutes = getMinutesFromDate(eventUiModel.dateFinish) + minutesToBeAdded
 
-        val startTime =
-            LocalTime.of(startTimeInMinutes / 60, startTimeInMinutes % 60)
-        val finishTime =
-            LocalTime.of(finishTimeInMinutes / 60, finishTimeInMinutes % 60)
+            val startTimeInHours = startTimeInMinutes / 60
+            val finishTimeInHours = finishTimeInMinutes / 60
 
-        return Pair(startTime, finishTime)
+            val startTime =
+                LocalTime.of(startTimeInHours, startTimeInMinutes % 60)
+            val finishTime =
+                LocalTime.of(finishTimeInHours, finishTimeInMinutes % 60)
+            Pair(startTime, finishTime)
+        } catch (ex: DateTimeException) {
+            null
+        }
     }
 
     companion object {
@@ -315,6 +328,7 @@ data class ScheduleChartState(
             val items = events.sortedBy {
                 getMinutesFromDate(it.dateFinish) - getMinutesFromDate(it.dateStart)
             }
+
             for (i in items.withIndex()) {
                 var level = 0
                 for (j in i.index + 1 until items.size) {

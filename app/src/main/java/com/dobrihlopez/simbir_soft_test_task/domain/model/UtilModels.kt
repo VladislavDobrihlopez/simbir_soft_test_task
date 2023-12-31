@@ -1,4 +1,4 @@
-package com.dobrihlopez.simbir_soft_test_task.navigation
+package com.dobrihlopez.simbir_soft_test_task.domain.model
 
 @JvmInline
 value class Day(val value: Int)

@@ -12,58 +12,19 @@ import kotlin.properties.ObservableProperty
 import kotlin.reflect.KProperty
 
 class DiaryRepositoryImpl : DiaryRepository {
-    private var eventsSet = buildSet<Event> {
-        repeat(10) {
-            add(
-                Event(
-                    id = it.toLong(),
-                    name = "event $it",
-                    description = "description $it",
-                    dateStart = LocalDateTime.of(2023, 12, 10, it, 30),
-                    dateFinish = LocalDateTime.of(2023, 12, 10, it, 30)
-                )
-            )
-        }
-        repeat(5) {
-            add(
-                Event(
-                    id = it.toLong(),
-                    name = "event $it",
-                    description = "description $it",
-                    dateStart = LocalDateTime.of(2023, 5, 5, it, 0),
-                    dateFinish = LocalDateTime.of(2023, 12, 10, it, 30)
-                )
-            )
-        }
-    }.toMutableSet()
-
-    private val store = MutableStateFlow(eventsSet.toList())
-
-    private val scope = CoroutineScope(Dispatchers.IO)
-
-    init {
-        object : ObservableProperty<Set<Event>>(eventsSet) {
-            override fun setValue(thisRef: Any?, property: KProperty<*>, value: Set<Event>) {
-                super.setValue(thisRef, property, value)
-                scope.launch {
-                    store.emit(value.toList())
-                }
-            }
-        }
+    override fun getEvents(): StateFlow<List<Event>> {
+        TODO("Not yet implemented")
     }
 
-
-    override fun getEvents(): StateFlow<List<Event>> {
-        return store
+    override suspend fun getDetailedEvent(): Event {
+        TODO("Not yet implemented")
     }
 
     override suspend fun updateEvent(event: Event) {
-        eventsSet = eventsSet.map {
-            if (it.id == event.id) event else it
-        }.toMutableSet()
+        TODO("Not yet implemented")
     }
 
     override suspend fun createEvent(event: Event) {
-        eventsSet.add(event)
+        TODO("Not yet implemented")
     }
 }
