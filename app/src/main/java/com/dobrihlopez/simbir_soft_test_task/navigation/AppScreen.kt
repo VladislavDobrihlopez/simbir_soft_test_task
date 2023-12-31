@@ -1,6 +1,6 @@
-package com.dobrihlopez.simbir_soft_test_task.app.navigation
+package com.dobrihlopez.simbir_soft_test_task.navigation
 
-import com.dobrihlopez.simbir_soft_test_task.core.util.encode
+import com.dobrihlopez.simbir_soft_test_task.domain.util.encode
 
 sealed class AppScreen(val route: String) {
     object Calendar : AppScreen(CALENDAR_ROUTE)

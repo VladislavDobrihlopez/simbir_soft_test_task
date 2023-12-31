@@ -1,4 +1,4 @@
-package com.dobrihlopez.simbir_soft_test_task.app.navigation
+package com.dobrihlopez.simbir_soft_test_task.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -6,7 +6,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.dobrihlopez.simbir_soft_test_task.core.util.decode
 
 @Composable
 fun AppNavGraph(
