@@ -16,7 +16,7 @@ class DiaryRepositoryImpl : DiaryRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getDetailedEvent(): Event {
+    override suspend fun getDetailedEvent(id: Long): Event {
         TODO("Not yet implemented")
     }
 
