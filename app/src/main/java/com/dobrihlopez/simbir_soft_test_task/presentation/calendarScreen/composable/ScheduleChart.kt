@@ -9,10 +9,13 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
@@ -363,10 +366,35 @@ data class ScheduleChartState(
             VERY_BEGINNING,
             END
         }
+
+        @Suppress("UNCHECKED_CAST")
+        val saver: Saver<MutableState<ScheduleChartState>, Any> = listSaver(save = { original ->
+            with(original.value) {
+                listOf(
+                    events,
+                    scrolledYaxis,
+                    componentSize.height,
+                    componentSize.width,
+                    visibleHourBlocks,
+                    colorsForLevelsOfHovering,
+                )
+            }
+        }, restore = { restored ->
+            val size = IntSize(restored[2] as Int, restored[3] as Int)
+            val stateValue = ScheduleChartState(
+                events = restored[0] as List<EventUiModel>,
+                scrolledYaxis = restored[1] as Float,
+                componentSize = size,
+                visibleHourBlocks = restored[4] as Int,
+                colorsForLevelsOfHovering = restored[5] as List<ColorToOnColor>
+            )
+            mutableStateOf(stateValue)
+        })
     }
 }
 
 @Composable
-fun rememberScheduleChartState(events: List<EventUiModel>) = remember {
-    mutableStateOf(ScheduleChartState(events))
-}
+fun rememberScheduleChartState(events: List<EventUiModel>) =
+    rememberSaveable(saver = ScheduleChartState.saver) {
+        mutableStateOf(ScheduleChartState(events))
+    }
