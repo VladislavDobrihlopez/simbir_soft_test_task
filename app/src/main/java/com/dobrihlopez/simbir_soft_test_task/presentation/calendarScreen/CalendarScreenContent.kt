@@ -25,8 +25,13 @@ import com.dobrihlopez.simbir_soft_test_task.presentation.model.EventUiModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+typealias EventId = Long
+
 @Composable
-fun CalendarScreenContent() {
+fun CalendarScreenContent(
+    onDisplayEventDetails: (EventId) -> Unit,
+    onCreateNewEvent: () -> Unit
+) {
     val items = remember {
         mutableStateOf<List<EventUiModel>>(buildList {
             add(
@@ -111,6 +116,7 @@ fun CalendarScreenContent() {
                 },
                 onTapItem = { event ->
                     Toast.makeText(context, "$event", Toast.LENGTH_SHORT).show()
+                    onDisplayEventDetails(event.id)
                 },
                 onUpdateItem = { eventUiModel: EventUiModel, localTime: StartTime, localTime2: FinishTime ->
                     items.value = items.value.map {

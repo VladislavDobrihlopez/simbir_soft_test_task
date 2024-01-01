@@ -1,13 +1,16 @@
 package com.dobrihlopez.simbir_soft_test_task.presentation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dobrihlopez.simbir_soft_test_task.domain.model.Day
+import com.dobrihlopez.simbir_soft_test_task.domain.model.Month
+import com.dobrihlopez.simbir_soft_test_task.domain.model.Year
 import com.dobrihlopez.simbir_soft_test_task.navigation.AppNavGraph
 import com.dobrihlopez.simbir_soft_test_task.navigation.rememberAppNavigator
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.CalendarScreen
+import com.dobrihlopez.simbir_soft_test_task.presentation.editorScreen.EditorScreen
 
 @Composable
 fun MainScreen(navController: NavHostController = rememberNavController()) {
@@ -15,10 +18,12 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
     AppNavGraph(
         navController = navController,
         calendarScreenContent = {
-            CalendarScreen()
+            CalendarScreen(onNavigateToDetailsScreen = {
+                navigator.navigateToEditorScreen(Day(12), Month(12), Year(2012))
+            })
         },
         editorScreenContent = { day, month, year ->
-            Text(text = "$day $month $year")
+            EditorScreen()
         }
     )
 }
