@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface DiaryRepository {
     fun getEvents(): StateFlow<List<Event>>
-    suspend fun getDetailedEvent(id: Long): Event
+    suspend fun getDetailedEvent(eventId: Long): Event
     suspend fun updateEvent(event: Event)
     suspend fun createEvent(event: Event)
+    suspend fun deleteEvent(event: Event)
 }
