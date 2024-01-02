@@ -33,6 +33,8 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.dobrihlopez.simbir_soft_test_task.app.theme.LocalSpacing
+import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishTime
+import com.dobrihlopez.simbir_soft_test_task.domain.model.StartTime
 import com.dobrihlopez.simbir_soft_test_task.presentation.model.EventUiModel
 import java.time.DateTimeException
 import java.time.LocalDateTime
@@ -42,9 +44,6 @@ import kotlin.math.roundToInt
 typealias ScrollPos = Float
 typealias VisibleItemsNumber = Int
 
-typealias StartTime = LocalTime
-typealias FinishTime = LocalTime
-
 private typealias EventsToLevel = List<Pair<EventUiModel, Int>>
 private typealias ColorToOnColor = Pair<Color, Color>
 
@@ -53,7 +52,7 @@ fun ScheduleChart(
     state: State<ScheduleChartState>,
     onComposableSizeDefined: (IntSize) -> Unit,
     onTransformationChange: (VisibleItemsNumber, ScrollPos) -> Unit,
-    onTapItem: (EventUiModel) -> Unit,
+    onTouchItem: (EventUiModel) -> Unit,
     onUpdateItem: (EventUiModel, StartTime, FinishTime) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -96,7 +95,7 @@ fun ScheduleChart(
                 detectTapGestures { offset ->
                     chartState
                         .getTouchedTopLayerItemIfPersists(offset)
-                        ?.let(onTapItem)
+                        ?.let(onTouchItem)
                 }
             }
             .pointerInput(Unit) {
@@ -281,11 +280,11 @@ data class ScheduleChartState(
     fun convertTimeToYPositionInChart(edgeType: EdgeType, eventUiModel: EventUiModel): Float {
         return blockHeight * when (edgeType) {
             EdgeType.VERY_BEGINNING -> {
-                getMinutesFromDate(eventUiModel.dateStart) / 60f
+                getMinutesFromDate(eventUiModel.dateStart) / MINUTES_IN_HOUR.toFloat()
             }
 
             EdgeType.END -> {
-                getMinutesFromDate(eventUiModel.dateFinish) / 60f
+                getMinutesFromDate(eventUiModel.dateFinish) / MINUTES_IN_HOUR.toFloat()
             }
         }
     }
@@ -296,18 +295,18 @@ data class ScheduleChartState(
     ): Pair<StartTime, FinishTime>? {
         return try {
             val minutesToBeAdded =
-                ((changeAmount / blockHeight) * 60).roundToInt() // might be negative as well as positive
+                ((changeAmount / blockHeight) * MINUTES_IN_HOUR).roundToInt() // might be negative as well as positive
 
             val startTimeInMinutes = getMinutesFromDate(eventUiModel.dateStart) + minutesToBeAdded
             val finishTimeInMinutes = getMinutesFromDate(eventUiModel.dateFinish) + minutesToBeAdded
 
-            val startTimeInHours = startTimeInMinutes / 60
-            val finishTimeInHours = finishTimeInMinutes / 60
+            val startTimeInHours = startTimeInMinutes / MINUTES_IN_HOUR
+            val finishTimeInHours = finishTimeInMinutes / MINUTES_IN_HOUR
 
             val startTime =
-                LocalTime.of(startTimeInHours, startTimeInMinutes % 60)
+                LocalTime.of(startTimeInHours, startTimeInMinutes % MINUTES_IN_HOUR)
             val finishTime =
-                LocalTime.of(finishTimeInHours, finishTimeInMinutes % 60)
+                LocalTime.of(finishTimeInHours, finishTimeInMinutes % MINUTES_IN_HOUR)
             Pair(startTime, finishTime)
         } catch (ex: DateTimeException) {
             null
@@ -316,7 +315,7 @@ data class ScheduleChartState(
 
     companion object {
         private fun getMinutesFromDate(date: LocalDateTime): Int {
-            return date.hour * 60 + date.minute
+            return date.hour * MINUTES_IN_HOUR + date.minute
         }
 
         fun calculateLevelsOfHovering(events: List<EventUiModel>): EventsToLevel {
@@ -357,6 +356,7 @@ data class ScheduleChartState(
         val TAG = ScheduleChartState::class.java.simpleName
         val CONTENT_HORIZONTAL_PADDING = 4.dp
         const val BLOCKS_IN_TOTAL_IN_SCREEN = 25 // 24 hours a day (European 24h format time)
+        private const val MINUTES_IN_HOUR = 60
         const val DEFAULT_MIN_NUMBER_OF_VISIBLE_HOURS = 4
         const val DEFAULT_NUMBER_OF_VISIBLE_HOURS = 8
         const val DEFAULT_MAX_NUMBER_OF_VISIBLE_HOURS = 19
