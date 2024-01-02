@@ -1,6 +1,7 @@
 package com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,6 +48,16 @@ fun WeekSelector(
     val selectorState = state.value
     require(selectorState.weekData.size == WeekSelectorState.DAYS_IN_WEEK)
     val spacing = LocalSpacing.current
+    val configuration = LocalConfiguration.current
+    val orientation = configuration.orientation
+    val daysToDisplay = remember {
+        mutableStateOf<Int>(
+            if (orientation == Configuration.ORIENTATION_PORTRAIT)
+                WeekSelectorState.DAYS_TO_DISPLAY_FOR_PORTRAIT_MODE
+            else
+                WeekSelectorState.DAYS_TO_DISPLAY_FOR_ALBUM_MODE
+        )
+    }
 
     Row(
         modifier = modifier
@@ -63,10 +75,13 @@ fun WeekSelector(
             )
         )
         Row(
-            horizontalArrangement = Arrangement.spacedBy(spacing.spaceSmall, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.spacedBy(
+                spacing.spaceSmall,
+                Alignment.CenterHorizontally
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            selectorState.weekData.forEach { date ->
+            selectorState.weekData.take(daysToDisplay.value).forEach { date ->
                 SelectedItem(
                     date = date,
                     isSelected = selectorState.selectedDate == date,
@@ -120,7 +135,9 @@ private fun SelectedItem(date: LocalDate, onTouch: () -> Unit, isSelected: Boole
 
 data class WeekSelectorState(val weekData: List<LocalDate>, val selectedDate: LocalDate) {
     companion object {
-        const val DAYS_IN_WEEK = 5
+        const val DAYS_IN_WEEK = 7
+        const val DAYS_TO_DISPLAY_FOR_PORTRAIT_MODE = 5
+        const val DAYS_TO_DISPLAY_FOR_ALBUM_MODE = 7
     }
 }
 

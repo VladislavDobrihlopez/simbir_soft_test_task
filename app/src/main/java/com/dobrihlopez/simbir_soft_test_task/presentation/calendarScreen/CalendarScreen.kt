@@ -6,5 +6,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun CalendarScreen(onNavigateToDetailsScreen: (EventId) -> Unit) {
+    // viewmodel initialization
+    // side effects
     CalendarScreenContent(onDisplayEventDetails = onNavigateToDetailsScreen, onCreateNewEvent = {})
 }

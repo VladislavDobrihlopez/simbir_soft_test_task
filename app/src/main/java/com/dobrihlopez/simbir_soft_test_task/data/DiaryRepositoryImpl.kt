@@ -3,6 +3,8 @@ package com.dobrihlopez.simbir_soft_test_task.data
 import com.dobrihlopez.simbir_soft_test_task.data.database.EventsDao
 import com.dobrihlopez.simbir_soft_test_task.domain.DiaryRepository
 import com.dobrihlopez.simbir_soft_test_task.domain.model.Event
+import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishDateTime
+import com.dobrihlopez.simbir_soft_test_task.domain.model.StartDateTime
 import com.dobrihlopez.simbir_soft_test_task.domain.util.assertNotOnUiThread
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +45,16 @@ class DiaryRepositoryImpl(
         switchThread {
             val dbEntity = event.toEventDbEntity()
             eventsDao.upsertEvent(dbEntity)
+        }
+    }
+
+    override suspend fun updateEventDuration(
+        eventId: Long,
+        startDateTime: StartDateTime,
+        finishDateTime: FinishDateTime
+    ) {
+        switchThread {
+            eventsDao.updateEventDuration(eventId, startDateTime, finishDateTime)
         }
     }
 

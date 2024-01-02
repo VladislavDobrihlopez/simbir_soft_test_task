@@ -3,4 +3,5 @@
     <string name="previous_week">Previous week</string>
     <string name="next_week">Next week</string>
     <string name="navigate_back">Navigate back</string>
+    <string name="add_a_new_event">Add a new event</string>
 </resources>
