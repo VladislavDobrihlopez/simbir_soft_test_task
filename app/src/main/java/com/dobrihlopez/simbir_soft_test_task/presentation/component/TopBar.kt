@@ -32,7 +32,7 @@ fun TopBar(
         modifier = modifier
             .height(40.dp)
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer)
+//            .background(MaterialTheme.colorScheme.primaryContainer)
     ) {
         startSlot?.invoke(this)
         Text(

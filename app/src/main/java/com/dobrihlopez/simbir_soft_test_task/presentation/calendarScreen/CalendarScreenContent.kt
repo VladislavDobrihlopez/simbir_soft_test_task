@@ -24,13 +24,12 @@ import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composa
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.WeekSelector
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.rememberScheduleChartState
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.composable.rememberWeekSelectorState
-import com.dobrihlopez.simbir_soft_test_task.presentation.model.EventUiModel
+import com.dobrihlopez.simbir_soft_test_task.presentation.model.BriefEventUiModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 typealias EventId = Long
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarScreenContent(
 //    state: CalendarScreenState,
@@ -42,9 +41,9 @@ fun CalendarScreenContent(
     // react to screen states
 
     val items = remember {
-        mutableStateOf<List<EventUiModel>>(buildList {
+        mutableStateOf<List<BriefEventUiModel>>(buildList {
             add(
-                EventUiModel(
+                BriefEventUiModel(
                     id = 0,
                     name = "Houston",
                     dateStart = LocalDateTime.now().minusHours(5),
@@ -52,7 +51,7 @@ fun CalendarScreenContent(
                 )
             )
             add(
-                EventUiModel(
+                BriefEventUiModel(
                     id = 1,
                     name = "Hello",
                     dateStart = LocalDateTime.now().minusHours(4),
@@ -60,7 +59,7 @@ fun CalendarScreenContent(
                 )
             )
             add(
-                EventUiModel(
+                BriefEventUiModel(
                     id = 4,
                     name = "Hello",
                     dateStart = LocalDateTime.now().minusHours(4).plusMinutes(25),
@@ -68,7 +67,7 @@ fun CalendarScreenContent(
                 )
             )
             add(
-                EventUiModel(
+                BriefEventUiModel(
                     id = 2,
                     name = "Wilbert Chapman",
                     dateStart = LocalDateTime.now().minusHours(2),
@@ -100,13 +99,12 @@ fun CalendarScreenContent(
             FabEventCreator(onTouch = onCreateNewEvent)
         }
     ) { paddingValues: PaddingValues ->
-
         Surface(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(spacing.spaceMedium)
+                .padding(spacing.contentPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 WeekSelector(
@@ -135,7 +133,7 @@ fun CalendarScreenContent(
                         Toast.makeText(context, "$event", Toast.LENGTH_SHORT).show()
                         onDisplayEventDetails(event.id)
                     },
-                    onUpdateItem = { eventUiModel: EventUiModel, localTime: StartTime, localTime2: FinishTime ->
+                    onUpdateItem = { eventUiModel: BriefEventUiModel, localTime: StartTime, localTime2: FinishTime ->
                         items.value = items.value.map {
                             if (it.id == eventUiModel.id) it.copy(
                                 dateStart = it.dateStart

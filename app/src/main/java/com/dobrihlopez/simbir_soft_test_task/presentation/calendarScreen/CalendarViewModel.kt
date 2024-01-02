@@ -6,7 +6,7 @@ import com.dobrihlopez.simbir_soft_test_task.domain.model.StartTime
 import com.dobrihlopez.simbir_soft_test_task.domain.usecase.GetEventsUseCase
 import com.dobrihlopez.simbir_soft_test_task.domain.usecase.UpdateEventDurationUseCase
 import com.dobrihlopez.simbir_soft_test_task.presentation.BaseViewModel
-import com.dobrihlopez.simbir_soft_test_task.presentation.model.EventUiModel
+import com.dobrihlopez.simbir_soft_test_task.presentation.model.BriefEventUiModel
 import kotlinx.coroutines.launch
 
 class CalendarViewModel(
@@ -51,7 +51,7 @@ class CalendarViewModel(
     }
 
     private fun onUpdateItemTime(
-        oldEvent: EventUiModel,
+        oldEvent: BriefEventUiModel,
         newStartTime: StartTime,
         newFinishTime: FinishTime
     ) {

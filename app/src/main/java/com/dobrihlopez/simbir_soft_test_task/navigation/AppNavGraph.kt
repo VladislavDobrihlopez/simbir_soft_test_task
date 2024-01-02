@@ -14,7 +14,7 @@ import com.dobrihlopez.simbir_soft_test_task.domain.model.Year
 fun AppNavGraph(
     navController: NavHostController,
     calendarScreenContent: @Composable () -> Unit,
-    editorScreenContent: @Composable (Day, Month, Year) -> Unit
+    editorScreenContent: @Composable () -> Unit
 ) {
     NavHost(navController = navController, startDestination = AppScreen.Calendar.route) {
         composable(route = AppScreen.Calendar.route) {
@@ -22,20 +22,22 @@ fun AppNavGraph(
         }
         composable(
             route = AppScreen.EventEditor.route,
-            arguments = listOf(navArgument(AppScreen.EventEditor.DATE_PARAM) {
+            arguments = listOf(navArgument(AppScreen.EventEditor.EVENT_ID_PARAM) {
                 type = NavType.StringType
+                nullable = true
             })
         ) { backStackEntry ->
-            val rawDate =
-                backStackEntry.arguments?.getString(AppScreen.EventEditor.DATE_PARAM) ?: ""
-
-            with(rawDate) {
-                val delimiter = '/'
-                val day = substringBefore(delimiter)
-                val month = substringAfter(delimiter).substringBefore(delimiter)
-                val year = substringAfterLast(delimiter)
-                editorScreenContent(Day(day.toInt()), Month(month.toInt()), Year(year.toInt()))
-            }
+//            val rawEventId =
+//                backStackEntry.arguments?.getString(AppScreen.EventEditor.EVENT_ID_PARAM) ?: ""
+//            val eventId = rawEventId.toLong()
+            editorScreenContent()
+//            with(rawEventId) {
+//                val delimiter = '/'
+//                val day = substringBefore(delimiter)
+//                val month = substringAfter(delimiter).substringBefore(delimiter)
+//                val year = substringAfterLast(delimiter)
+//                editorScreenContent(Day(day.toInt()), Month(month.toInt()), Year(year.toInt()))
+//            }
         }
     }
 }

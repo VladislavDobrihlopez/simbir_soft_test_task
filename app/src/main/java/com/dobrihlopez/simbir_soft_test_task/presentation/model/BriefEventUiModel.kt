@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
 @Parcelize
-data class EventUiModel(
+data class BriefEventUiModel(
     val id: Long,
     val name: String,
     val dateStart: LocalDateTime,

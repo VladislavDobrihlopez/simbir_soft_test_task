@@ -109,7 +109,7 @@ private fun Arrow(onTouch: () -> Unit, icon: ImageVector, contentDescription: St
 private fun SelectedItem(date: LocalDate, onTouch: () -> Unit, isSelected: Boolean = false) {
     Column(
         modifier = Modifier
-            .size(42.dp)
+            .size(45.dp)
             .clip(CircleShape)
             .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
             .clickable {

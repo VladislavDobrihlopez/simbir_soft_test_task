@@ -4,4 +4,7 @@
     <string name="next_week">Next week</string>
     <string name="navigate_back">Navigate back</string>
     <string name="add_a_new_event">Add a new event</string>
+    <string name="error_occurred">Error occurred: %1$s</string>
+    <string name="loading">Loading...</string>
+    <string name="save_event">Save event</string>
 </resources>
