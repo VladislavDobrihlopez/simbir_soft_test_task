@@ -44,7 +44,7 @@ import kotlin.math.roundToInt
 typealias ScrollPos = Float
 typealias VisibleItemsNumber = Int
 
-private typealias EventsToLevel = List<Pair<EventUiModel, Int>>
+private typealias EventsToElevation = List<Pair<EventUiModel, Int>>
 private typealias ColorToOnColor = Pair<Color, Color>
 
 @Composable
@@ -158,7 +158,7 @@ fun ScheduleChart(
                 )
             }
             // hour column
-            ScheduleChartState.calculateLevelsOfHovering(chartState.visibleHourBlocksModels)
+            ScheduleChartState.calculateElevations(chartState.visibleHourBlocksModels)
                 .sortedBy { it.second }
                 .forEachIndexed { index, eventToLayer ->
                     val (event, layer) = eventToLayer
@@ -218,7 +218,7 @@ data class ScheduleChartState(
     val scrolledYaxis: Float = 0f,
     val componentSize: IntSize = IntSize(0, 0),
     val visibleHourBlocks: Int = DEFAULT_NUMBER_OF_VISIBLE_HOURS,
-    val colorsForLevelsOfHovering: List<ColorToOnColor> = listOf(
+    val colorsForElevations: List<ColorToOnColor> = listOf(
         Pair(Color.Green, Color.Black),
         Pair(Color.Red, Color.White),
         Pair(Color.Blue, Color.White),
@@ -253,13 +253,13 @@ data class ScheduleChartState(
         }
 
     fun getColor(layer: Int): Color {
-        require(layer < colorsForLevelsOfHovering.size)
-        return colorsForLevelsOfHovering[layer].first
+        require(layer < colorsForElevations.size)
+        return colorsForElevations[layer].first
     }
 
     fun getOnColor(layer: Int): Color {
-        require(layer < colorsForLevelsOfHovering.size)
-        return colorsForLevelsOfHovering[layer].second
+        require(layer < colorsForElevations.size)
+        return colorsForElevations[layer].second
     }
 
     fun getTouchedTopLayerItemIfPersists(touchedArea: Offset): EventUiModel? {
@@ -318,7 +318,7 @@ data class ScheduleChartState(
             return date.hour * MINUTES_IN_HOUR + date.minute
         }
 
-        fun calculateLevelsOfHovering(events: List<EventUiModel>): EventsToLevel {
+        fun calculateElevations(events: List<EventUiModel>): EventsToElevation {
             fun doesInclude(
                 firstEvent: Pair<StartTime, FinishTime>,
                 secondEvent: Pair<StartTime, FinishTime>
@@ -326,29 +326,61 @@ data class ScheduleChartState(
                 return firstEvent.first >= secondEvent.first && firstEvent.second < secondEvent.second
             }
 
+            fun doesOverlap(
+                firstEvent: Pair<StartTime, FinishTime>,
+                secondEvent: Pair<StartTime, FinishTime>
+            ): Boolean {
+                return firstEvent.first >= secondEvent.first && firstEvent.first < secondEvent.second && firstEvent.second > secondEvent.second
+            }
+
             val result = mutableListOf<Pair<EventUiModel, Int>>()
             val items = events.sortedBy {
                 getMinutesFromDate(it.dateFinish) - getMinutesFromDate(it.dateStart)
             }
 
-            for (i in items.withIndex()) {
-                var level = 0
-                for (j in i.index + 1 until items.size) {
+            for (eventI in items.withIndex()) {
+                var elevation = 0
+                for (eventJ in eventI.index + 1 until items.size) {
+                    val firstEvent = Pair(
+                        eventI.value.dateStart.toLocalTime(),
+                        eventI.value.dateFinish.toLocalTime()
+                    )
+                    val secondEvent = Pair(
+                        items[eventJ].dateStart.toLocalTime(),
+                        items[eventJ].dateFinish.toLocalTime()
+                    )
+                    if (doesInclude(
+                            firstEvent = firstEvent,
+                            secondEvent = secondEvent
+                        ) || doesOverlap(firstEvent = firstEvent, secondEvent = secondEvent)
+                    ) {
+                        elevation++
+                    }
+                }
+                result.add(Pair(eventI.value, elevation))
+            }
+
+            // ensuring tyne events are seen when they are included in big ones
+
+            for (eventWithElevationIdx in result.indices) {
+                for (eventIdx in eventWithElevationIdx + 1 until result.size) {
+                    val eventI = result[eventWithElevationIdx].first
+                    val eventJ = result[eventIdx].first
                     if (doesInclude(
                             firstEvent = Pair(
-                                i.value.dateStart.toLocalTime(),
-                                i.value.dateFinish.toLocalTime()
+                                eventI.dateStart.toLocalTime(),
+                                eventJ.dateFinish.toLocalTime()
                             ),
                             secondEvent = Pair(
-                                items[j].dateStart.toLocalTime(),
-                                items[j].dateFinish.toLocalTime()
+                                eventJ.dateStart.toLocalTime(),
+                                eventJ.dateFinish.toLocalTime()
                             )
                         )
                     ) {
-                        level++
+                        result[eventWithElevationIdx] =
+                            Pair(result[eventWithElevationIdx].first, result[eventIdx].second + 1)
                     }
                 }
-                result.add(Pair(i.value, level))
             }
             return result
         }
@@ -376,7 +408,7 @@ data class ScheduleChartState(
                     componentSize.height,
                     componentSize.width,
                     visibleHourBlocks,
-                    colorsForLevelsOfHovering,
+                    colorsForElevations,
                 )
             }
         }, restore = { restored ->
@@ -386,7 +418,7 @@ data class ScheduleChartState(
                 scrolledYaxis = restored[1] as Float,
                 componentSize = size,
                 visibleHourBlocks = restored[4] as Int,
-                colorsForLevelsOfHovering = restored[5] as List<ColorToOnColor>
+                colorsForElevations = restored[5] as List<ColorToOnColor>
             )
             mutableStateOf(stateValue)
         })
