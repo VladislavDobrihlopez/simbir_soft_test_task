@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.dobrihlopez.simbir_soft_test_task.app.theme.LocalSpacing
 import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishTime
 import com.dobrihlopez.simbir_soft_test_task.domain.model.StartTime
-import com.dobrihlopez.simbir_soft_test_task.presentation.model.EventUiModel
+import com.dobrihlopez.simbir_soft_test_task.presentation.model.BriefEventUiModel
 import java.time.DateTimeException
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -44,7 +44,7 @@ import kotlin.math.roundToInt
 typealias ScrollPos = Float
 typealias VisibleItemsNumber = Int
 
-private typealias EventsToElevation = List<Pair<EventUiModel, Int>>
+private typealias EventsToElevation = List<Pair<BriefEventUiModel, Int>>
 private typealias ColorToOnColor = Pair<Color, Color>
 
 @Composable
@@ -52,8 +52,8 @@ fun ScheduleChart(
     state: State<ScheduleChartState>,
     onComposableSizeDefined: (IntSize) -> Unit,
     onTransformationChange: (VisibleItemsNumber, ScrollPos) -> Unit,
-    onTouchItem: (EventUiModel) -> Unit,
-    onUpdateItem: (EventUiModel, StartTime, FinishTime) -> Unit,
+    onTouchItem: (BriefEventUiModel) -> Unit,
+    onUpdateItem: (BriefEventUiModel, StartTime, FinishTime) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -214,7 +214,7 @@ fun ScheduleChart(
 }
 
 data class ScheduleChartState(
-    val events: List<EventUiModel>,
+    val events: List<BriefEventUiModel>,
     val scrolledYaxis: Float = 0f,
     val componentSize: IntSize = IntSize(0, 0),
     val visibleHourBlocks: Int = DEFAULT_NUMBER_OF_VISIBLE_HOURS,
@@ -234,7 +234,7 @@ data class ScheduleChartState(
     val blockHeight: Float
         get() = componentHeight / visibleHourBlocks
 
-    val visibleHourBlocksModels: List<EventUiModel>
+    val visibleHourBlocksModels: List<BriefEventUiModel>
         get() {
             return try {
 //                val startTakenEventIndex = (scrolledYaxis / blockHeight)
@@ -262,9 +262,9 @@ data class ScheduleChartState(
         return colorsForElevations[layer].second
     }
 
-    fun getTouchedTopLayerItemIfPersists(touchedArea: Offset): EventUiModel? {
+    fun getTouchedTopLayerItemIfPersists(touchedArea: Offset): BriefEventUiModel? {
         var minTimeDiff = Float.MAX_VALUE
-        var item: EventUiModel? = null
+        var item: BriefEventUiModel? = null
         events.forEachIndexed { index, eventUiModel ->
             // add somewhat caching
             val startPos = convertTimeToYPositionInChart(EdgeType.VERY_BEGINNING, eventUiModel)
@@ -277,7 +277,7 @@ data class ScheduleChartState(
         return item
     }
 
-    fun convertTimeToYPositionInChart(edgeType: EdgeType, eventUiModel: EventUiModel): Float {
+    fun convertTimeToYPositionInChart(edgeType: EdgeType, eventUiModel: BriefEventUiModel): Float {
         return blockHeight * when (edgeType) {
             EdgeType.VERY_BEGINNING -> {
                 getMinutesFromDate(eventUiModel.dateStart) / MINUTES_IN_HOUR.toFloat()
@@ -291,7 +291,7 @@ data class ScheduleChartState(
 
     fun convertOffsetYChangeToTime(
         changeAmount: Float,
-        eventUiModel: EventUiModel
+        eventUiModel: BriefEventUiModel
     ): Pair<StartTime, FinishTime>? {
         return try {
             val minutesToBeAdded =
@@ -318,7 +318,7 @@ data class ScheduleChartState(
             return date.hour * MINUTES_IN_HOUR + date.minute
         }
 
-        fun calculateElevations(events: List<EventUiModel>): EventsToElevation {
+        fun calculateElevations(events: List<BriefEventUiModel>): EventsToElevation {
             fun doesInclude(
                 firstEvent: Pair<StartTime, FinishTime>,
                 secondEvent: Pair<StartTime, FinishTime>
@@ -333,7 +333,7 @@ data class ScheduleChartState(
                 return firstEvent.first >= secondEvent.first && firstEvent.first < secondEvent.second && firstEvent.second > secondEvent.second
             }
 
-            val result = mutableListOf<Pair<EventUiModel, Int>>()
+            val result = mutableListOf<Pair<BriefEventUiModel, Int>>()
             val items = events.sortedBy {
                 getMinutesFromDate(it.dateFinish) - getMinutesFromDate(it.dateStart)
             }
@@ -414,7 +414,7 @@ data class ScheduleChartState(
         }, restore = { restored ->
             val size = IntSize(restored[2] as Int, restored[3] as Int)
             val stateValue = ScheduleChartState(
-                events = restored[0] as List<EventUiModel>,
+                events = restored[0] as List<BriefEventUiModel>,
                 scrolledYaxis = restored[1] as Float,
                 componentSize = size,
                 visibleHourBlocks = restored[4] as Int,
@@ -426,7 +426,7 @@ data class ScheduleChartState(
 }
 
 @Composable
-fun rememberScheduleChartState(events: List<EventUiModel>) =
+fun rememberScheduleChartState(events: List<BriefEventUiModel>) =
     rememberSaveable(saver = ScheduleChartState.saver) {
         mutableStateOf(ScheduleChartState(events))
     }
