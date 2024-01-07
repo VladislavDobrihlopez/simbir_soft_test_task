@@ -12,9 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.dobrihlopez.simbir_soft_test_task.app.theme.LocalSpacing
 import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishTime
@@ -33,10 +36,10 @@ typealias EventId = Long
 @Composable
 fun CalendarScreenContent(
 //    state: CalendarScreenState,
-    onDisplayEventDetails: (EventId) -> Unit,
+    onDisplayEventDetails: (EventId, Color) -> Unit,
 //    onTouchEvent: (EventUiModel) -> Unit,
 //    onUpdateEvent: (EventUiModel, StartTime, FinishTime) -> Unit,
-    onCreateNewEvent: () -> Unit,
+    onCreateNewEvent: (LocalDate) -> Unit,
 ) {
     // react to screen states
 
@@ -80,7 +83,9 @@ fun CalendarScreenContent(
         events = items.value
     )
 
-    val selectedDate = LocalDate.now()
+    var selectedDate by remember {
+        mutableStateOf(LocalDate.now())
+    }
 
     val dates = buildList<LocalDate> {
         add(selectedDate)
@@ -96,7 +101,9 @@ fun CalendarScreenContent(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
-            FabEventCreator(onTouch = onCreateNewEvent)
+            FabEventCreator(onTouch = {
+                onCreateNewEvent(selectedDate)
+            })
         }
     ) { paddingValues: PaddingValues ->
         Surface(
@@ -113,7 +120,7 @@ fun CalendarScreenContent(
                     onMoveToPreviousDate = { /*TODO*/ },
                     onMoveToNextDate = { /*TODO*/ },
                     onSelectNewDay = {
-
+                        selectedDate = it
                     }
                 )
                 ScheduleChart(
@@ -129,9 +136,9 @@ fun CalendarScreenContent(
                                 visibleHourBlocks = visibleItems
                             )
                     },
-                    onTouchItem = { event ->
+                    onTouchItem = { event, color ->
                         Toast.makeText(context, "$event", Toast.LENGTH_SHORT).show()
-                        onDisplayEventDetails(event.id)
+                        onDisplayEventDetails(event.id, color)
                     },
                     onUpdateItem = { eventUiModel: BriefEventUiModel, localTime: StartTime, localTime2: FinishTime ->
                         items.value = items.value.map {

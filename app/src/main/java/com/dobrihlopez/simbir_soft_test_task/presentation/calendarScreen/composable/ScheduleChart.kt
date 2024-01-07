@@ -52,7 +52,7 @@ fun ScheduleChart(
     state: State<ScheduleChartState>,
     onComposableSizeDefined: (IntSize) -> Unit,
     onTransformationChange: (VisibleItemsNumber, ScrollPos) -> Unit,
-    onTouchItem: (BriefEventUiModel) -> Unit,
+    onTouchItem: (BriefEventUiModel, Color) -> Unit,
     onUpdateItem: (BriefEventUiModel, StartTime, FinishTime) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -87,6 +87,9 @@ fun ScheduleChart(
         })
 
     val textMeasurer = rememberTextMeasurer()
+    val cachedColors = rememberSaveable {
+        mutableStateOf<List<Pair<Long, Color>>>(listOf())
+    }
 
     Canvas(
         modifier = modifier
@@ -95,7 +98,13 @@ fun ScheduleChart(
                 detectTapGestures { offset ->
                     chartState
                         .getTouchedTopLayerItemIfPersists(offset)
-                        ?.let(onTouchItem)
+                        ?.let { event ->
+                            onTouchItem(
+                                event,
+                                cachedColors.value.find { it.first == event.id }?.second
+                                    ?: Color.White
+                            )
+                        }
                 }
             }
             .pointerInput(Unit) {
@@ -158,6 +167,9 @@ fun ScheduleChart(
                 )
             }
             // hour column
+
+            val eventColors = mutableListOf<Pair<Long, Color>>() // id of event to it's color
+
             ScheduleChartState.calculateElevations(chartState.visibleHourBlocksModels)
                 .sortedBy { it.second }
                 .forEachIndexed { index, eventToLayer ->
@@ -180,7 +192,9 @@ fun ScheduleChart(
                     )
 
                     drawRoundRect(
-                        color = chartState.getColor(layer),
+                        color = chartState.getColor(layer).also { color ->
+                            eventColors.add(Pair(eventToLayer.first.id, color))
+                        },
                         topLeft = Offset(startXMargin, startYPos),
                         size = size,
                         cornerRadius = CornerRadius(25f, 25f),
@@ -209,6 +223,7 @@ fun ScheduleChart(
                         )
                     }
                 }
+            cachedColors.value = eventColors
         }
     }
 }

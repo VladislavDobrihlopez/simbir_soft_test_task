@@ -4,6 +4,7 @@ import com.dobrihlopez.simbir_soft_test_task.domain.model.Event
 import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishDateTime
 import com.dobrihlopez.simbir_soft_test_task.domain.model.StartDateTime
 import kotlinx.coroutines.flow.StateFlow
+import java.time.LocalDateTime
 
 interface DiaryRepository {
     fun getEvents(): StateFlow<List<Event>>
@@ -15,6 +16,12 @@ interface DiaryRepository {
         finishDateTime: FinishDateTime
     )
 
-    suspend fun createEvent(event: Event)
+    suspend fun createEvent(
+        name: String,
+        description: String,
+        startDateTime: LocalDateTime,
+        finishDateTime: LocalDateTime,
+    )
+
     suspend fun deleteEvent(event: Event)
 }

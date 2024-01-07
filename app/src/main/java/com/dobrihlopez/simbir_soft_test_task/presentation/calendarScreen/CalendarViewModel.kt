@@ -65,10 +65,4 @@ class CalendarViewModel(
             )
         }
     }
-
-    private inline fun executeInCoroutine(crossinline contract: suspend () -> Unit) {
-        viewModelScope.launch {
-            contract()
-        }
-    }
 }

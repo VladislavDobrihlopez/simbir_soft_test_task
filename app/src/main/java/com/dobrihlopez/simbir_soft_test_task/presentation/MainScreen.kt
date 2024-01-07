@@ -18,14 +18,16 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
     AppNavGraph(
         navController = navController,
         calendarScreenContent = {
-            CalendarScreen(onNavigateToDetailsScreen = { eventId ->
-                navigator.navigateToEditorScreen(eventId)
+            CalendarScreen(onNavigateToDetailsScreen = { eventId, colorValue ->
+                navigator.navigateToEditorScreen(eventId, colorValue)
+            }, onCreateNewEvent = {
+                navigator.navigateToCreatorScreen()
             })
         },
         editorScreenContent = {
             EditorScreen(onNavigateBack = {
                 navigator.navigateBack()
             })
-        }
+        },
     )
 }

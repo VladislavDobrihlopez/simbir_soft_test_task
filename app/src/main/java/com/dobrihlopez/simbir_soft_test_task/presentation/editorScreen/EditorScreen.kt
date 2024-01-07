@@ -11,7 +11,7 @@ fun EditorScreen(
     onNavigateBack: () -> Unit,
 ) {
     EditorScreenContent(
-        state = EditorScreenState.Success(
+        state = EditorScreenState.Success.EditMode(
             DetailedEventUiModel(
                 color = Color.Green, event = Event(
                     id = 1,

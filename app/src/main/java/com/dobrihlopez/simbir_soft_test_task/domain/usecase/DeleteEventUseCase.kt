@@ -8,7 +8,7 @@ class DeleteEventUseCase(
 ) {
     suspend operator fun invoke(event: Event): Result<Unit> {
         return try {
-            repository.createEvent(event = event)
+            repository.deleteEvent(event = event)
             Result.success(Unit)
         } catch (ex: Exception) {
             Result.failure(ex)

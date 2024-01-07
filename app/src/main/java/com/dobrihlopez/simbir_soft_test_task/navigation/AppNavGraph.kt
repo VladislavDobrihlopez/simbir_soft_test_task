@@ -6,9 +6,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.dobrihlopez.simbir_soft_test_task.domain.model.Day
-import com.dobrihlopez.simbir_soft_test_task.domain.model.Month
-import com.dobrihlopez.simbir_soft_test_task.domain.model.Year
 
 @Composable
 fun AppNavGraph(
@@ -25,6 +22,9 @@ fun AppNavGraph(
             arguments = listOf(navArgument(AppScreen.EventEditor.EVENT_ID_PARAM) {
                 type = NavType.StringType
                 nullable = true
+            }, navArgument(AppScreen.EventEditor.EVENT_ITEM_COLOR) {
+                type = NavType.StringType
+                nullable = true
             })
         ) { backStackEntry ->
 //            val rawEventId =
@@ -38,6 +38,9 @@ fun AppNavGraph(
 //                val year = substringAfterLast(delimiter)
 //                editorScreenContent(Day(day.toInt()), Month(month.toInt()), Year(year.toInt()))
 //            }
+        }
+        composable(route = AppScreen.EventCreator.route) {
+            editorScreenContent()
         }
     }
 }

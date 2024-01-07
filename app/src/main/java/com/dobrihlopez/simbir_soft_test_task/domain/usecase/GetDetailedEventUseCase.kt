@@ -6,7 +6,7 @@ import com.dobrihlopez.simbir_soft_test_task.domain.model.Event
 class GetDetailedEventUseCase(
     private val repository: DiaryRepository
 ) {
-    suspend fun invoke(eventId: Long): Result<Event> {
+    suspend operator fun invoke(eventId: Long): Result<Event> {
         return try {
             val event = repository.getDetailedEvent(eventId)
             Result.success(event)

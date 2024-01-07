@@ -3,6 +3,7 @@ package com.dobrihlopez.simbir_soft_test_task.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -10,9 +11,9 @@ import androidx.navigation.compose.rememberNavController
 import com.dobrihlopez.simbir_soft_test_task.presentation.calendarScreen.EventId
 
 class AppNavigator(val controller: NavController) {
-    fun navigateToEditorScreen(eventId: EventId) {
+    fun navigateToEditorScreen(eventId: EventId, color: Color) {
         controller.executeIfResumed {
-            controller.navigate(AppScreen.EventEditor.parseArguments(eventId)) {
+            controller.navigate(AppScreen.EventEditor.parseArguments(eventId, color)) {
                 launchSingleTop = true
             }
         }
@@ -21,6 +22,14 @@ class AppNavigator(val controller: NavController) {
     fun navigateBack() {
         controller.executeIfResumed {
             controller.popBackStack()
+        }
+    }
+
+    fun navigateToCreatorScreen() {
+        controller.executeIfResumed {
+            controller.navigate(AppScreen.EventCreator.route) {
+                launchSingleTop = true
+            }
         }
     }
 }

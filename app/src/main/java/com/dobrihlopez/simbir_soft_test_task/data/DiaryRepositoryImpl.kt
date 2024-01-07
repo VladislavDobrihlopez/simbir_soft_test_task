@@ -1,5 +1,6 @@
 package com.dobrihlopez.simbir_soft_test_task.data
 
+import com.dobrihlopez.simbir_soft_test_task.data.database.EventDbEntity
 import com.dobrihlopez.simbir_soft_test_task.data.database.EventsDao
 import com.dobrihlopez.simbir_soft_test_task.domain.DiaryRepository
 import com.dobrihlopez.simbir_soft_test_task.domain.model.Event
@@ -10,6 +11,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 class DiaryRepositoryImpl(
     private val eventsDao: EventsDao,
@@ -28,11 +30,23 @@ class DiaryRepositoryImpl(
     }
 
     override suspend fun updateEvent(event: Event) {
-        upsertEvent(event)
+        upsertEvent(event.toEventDbEntity())
     }
 
-    override suspend fun createEvent(event: Event) {
-        upsertEvent(event)
+    override suspend fun createEvent(
+        name: String,
+        description: String,
+        startDateTime: LocalDateTime,
+        finishDateTime: LocalDateTime,
+    ) {
+        upsertEvent(
+            EventDbEntity(
+                name = name,
+                description = description,
+                dateStart = startDateTime,
+                dateFinish = finishDateTime
+            )
+        )
     }
 
     override suspend fun deleteEvent(event: Event) {
@@ -41,10 +55,9 @@ class DiaryRepositoryImpl(
         }
     }
 
-    private suspend fun upsertEvent(event: Event) {
+    private suspend fun upsertEvent(event: EventDbEntity) {
         switchThread {
-            val dbEntity = event.toEventDbEntity()
-            eventsDao.upsertEvent(dbEntity)
+            eventsDao.upsertEvent(event)
         }
     }
 
