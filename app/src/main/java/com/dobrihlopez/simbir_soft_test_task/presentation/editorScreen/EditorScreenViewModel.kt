@@ -1,30 +1,30 @@
 package com.dobrihlopez.simbir_soft_test_task.presentation.editorScreen
 
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.SavedStateHandle
 import com.dobrihlopez.simbir_soft_test_task.R
 import com.dobrihlopez.simbir_soft_test_task.domain.model.Event
 import com.dobrihlopez.simbir_soft_test_task.domain.usecase.CreateEventUseCase
 import com.dobrihlopez.simbir_soft_test_task.domain.usecase.GetDetailedEventUseCase
 import com.dobrihlopez.simbir_soft_test_task.domain.usecase.UpdateEventUseCase
-import com.dobrihlopez.simbir_soft_test_task.navigation.AppScreen
+import com.dobrihlopez.simbir_soft_test_task.ioc.NamedCardColor
+import com.dobrihlopez.simbir_soft_test_task.ioc.NamedId
 import com.dobrihlopez.simbir_soft_test_task.presentation.BaseViewModel
 import com.dobrihlopez.simbir_soft_test_task.presentation.UiText
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.update
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-class EditorScreenViewModel(
-    private val savedStateHandle: SavedStateHandle,
+class EditorScreenViewModel @Inject constructor(
+    @NamedId private val eventNamedId: Long?,
+    @NamedCardColor private val stringifiedColor: String?,
     private val getDetailedEventUseCase: GetDetailedEventUseCase,
     private val createEventUseCase: CreateEventUseCase,
     private val updateEventUseCase: UpdateEventUseCase,
 ) : BaseViewModel<EditorScreenState, EditorScreenEvent, EditorSideEffect>(EditorScreenState.Loading) {
-    private val id = savedStateHandle.get<Long>(AppScreen.EventEditor.EVENT_ID_PARAM)
-    private val color = savedStateHandle.get<ULong>(AppScreen.EventEditor.EVENT_ITEM_COLOR)
-
+    private val eventNamedCardColor = stringifiedColor?.toULong()
     private val mode: ScreenMode
-        get() = if (color != null && id != null) {
+        get() = if (eventNamedCardColor != null && eventNamedId != null) {
             ScreenMode.EDITOR
         } else {
             ScreenMode.CREATOR
@@ -61,8 +61,8 @@ class EditorScreenViewModel(
 
     private fun setupEditorMode() {
         executeInCoroutine(exceptionHandler) {
-            val id = requireNotNull(id)
-            val colorValue = requireNotNull(color)
+            val id = requireNotNull(eventNamedId)
+            val colorValue = requireNotNull(eventNamedCardColor)
             getDetailedEventUseCase(id)
                 .onSuccess { event ->
                     _state.update {
@@ -108,7 +108,7 @@ class EditorScreenViewModel(
             when (mode) {
                 ScreenMode.EDITOR -> {
                     updateEventUseCase(
-                        requireNotNull(id),
+                        requireNotNull(eventNamedId),
                         name,
                         description,
                         dateStart,

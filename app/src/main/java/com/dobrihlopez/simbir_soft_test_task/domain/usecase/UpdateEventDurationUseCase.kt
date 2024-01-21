@@ -5,8 +5,9 @@ import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishDateTime
 import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishTime
 import com.dobrihlopez.simbir_soft_test_task.domain.model.StartDateTime
 import com.dobrihlopez.simbir_soft_test_task.domain.model.StartTime
+import javax.inject.Inject
 
-class UpdateEventDurationUseCase(
+class UpdateEventDurationUseCase @Inject constructor(
     private val repository: DiaryRepository
 ) {
     suspend operator fun invoke(

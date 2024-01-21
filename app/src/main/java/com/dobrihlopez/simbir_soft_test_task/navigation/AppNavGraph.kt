@@ -11,7 +11,7 @@ import androidx.navigation.navArgument
 fun AppNavGraph(
     navController: NavHostController,
     calendarScreenContent: @Composable () -> Unit,
-    editorScreenContent: @Composable () -> Unit
+    editorScreenContent: @Composable (Long?, String?) -> Unit
 ) {
     NavHost(navController = navController, startDestination = AppScreen.Calendar.route) {
         composable(route = AppScreen.Calendar.route) {
@@ -27,10 +27,11 @@ fun AppNavGraph(
                 nullable = true
             })
         ) { backStackEntry ->
-//            val rawEventId =
-//                backStackEntry.arguments?.getString(AppScreen.EventEditor.EVENT_ID_PARAM) ?: ""
+            val eventId =
+                backStackEntry.arguments?.getString(AppScreen.EventEditor.EVENT_ID_PARAM)?.toLong()
+            val color = backStackEntry.arguments?.getString(AppScreen.EventEditor.EVENT_ITEM_COLOR)
 //            val eventId = rawEventId.toLong()
-            editorScreenContent()
+            editorScreenContent(eventId, color)
 //            with(rawEventId) {
 //                val delimiter = '/'
 //                val day = substringBefore(delimiter)
@@ -40,7 +41,7 @@ fun AppNavGraph(
 //            }
         }
         composable(route = AppScreen.EventCreator.route) {
-            editorScreenContent()
+            editorScreenContent(null, null)
         }
     }
 }

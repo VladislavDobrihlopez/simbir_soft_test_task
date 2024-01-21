@@ -24,10 +24,10 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
                 navigator.navigateToCreatorScreen()
             })
         },
-        editorScreenContent = {
+        editorScreenContent = { eventId, eventCardColor ->
             EditorScreen(onNavigateBack = {
                 navigator.navigateBack()
-            })
+            }, eventId = eventId, eventCardColor = eventCardColor)
         },
     )
 }

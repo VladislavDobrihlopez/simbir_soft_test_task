@@ -1,10 +1,8 @@
-import org.jetbrains.kotlin.fir.expressions.FirEmptyArgumentList.arguments
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
-    id ("kotlin-parcelize")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -76,6 +74,11 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("androidx.navigation:navigation-compose:2.7.6")
+
+    ksp("com.google.dagger:dagger-compiler:2.48")
+    implementation("com.google.dagger:dagger:2.48") // Инъекция зависимостей
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     implementation("androidx.room:room-runtime:2.5.0") // Библиотека "Room"
     ksp("androidx.room:room-compiler:2.5.0") // Кодогенератор

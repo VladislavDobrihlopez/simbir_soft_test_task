@@ -8,4 +8,8 @@ import androidx.room.TypeConverters
 @TypeConverters(value = [EventConverterHolder::class])
 abstract class AppDatabase : RoomDatabase() {
     abstract fun eventsDao(): EventsDao
+
+    companion object {
+        const val DB_NAME = "duties_calendar.db"
+    }
 }

@@ -8,8 +8,9 @@ import com.dobrihlopez.simbir_soft_test_task.domain.usecase.UpdateEventDurationU
 import com.dobrihlopez.simbir_soft_test_task.presentation.BaseViewModel
 import com.dobrihlopez.simbir_soft_test_task.presentation.model.BriefEventUiModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CalendarViewModel(
+class CalendarViewModel @Inject constructor(
     private val getEventsUseCase: GetEventsUseCase,
     private val updateEventDurationUseCase: UpdateEventDurationUseCase
 ) : BaseViewModel<

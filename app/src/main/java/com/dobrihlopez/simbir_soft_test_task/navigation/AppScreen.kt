@@ -18,7 +18,7 @@ sealed class AppScreen(val route: String) {
             return EVENT_EDITOR_ROUTE
                 .replace(
                     "{$EVENT_ID_PARAM}",
-                    eventId.toString().encode()
+                    eventId.toString()//.encode()
                 )
                 .replace("{$EVENT_ITEM_COLOR}", color.value.toString().encode())
         }
@@ -34,7 +34,7 @@ sealed class AppScreen(val route: String) {
     companion object {
         const val CALENDAR_ROUTE = "calendar"
         const val EVENT_CREATOR = "event_creator"
-        const val EVENT_EDITOR_ROUTE = "event_editor?${EventEditor.EVENT_ID_PARAM}/${EventEditor.EVENT_ITEM_COLOR}"
+        const val EVENT_EDITOR_ROUTE = "event_editor?{${EventEditor.EVENT_ID_PARAM}}/{${EventEditor.EVENT_ITEM_COLOR}}"
 //            "event_editor?${EventEditor.EVENT_ID_PARAM}=${EventEditor.EVENT_ID_PARAM}}/${EventEditor.EVENT_ITEM_COLOR}={${EventEditor.EVENT_ITEM_COLOR}}"
     }
 }

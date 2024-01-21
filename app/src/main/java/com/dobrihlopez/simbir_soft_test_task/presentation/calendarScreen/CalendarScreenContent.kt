@@ -35,7 +35,7 @@ typealias EventId = Long
 
 @Composable
 fun CalendarScreenContent(
-//    state: CalendarScreenState,
+    state: CalendarScreenState,
     onDisplayEventDetails: (EventId, Color) -> Unit,
 //    onTouchEvent: (EventUiModel) -> Unit,
 //    onUpdateEvent: (EventUiModel, StartTime, FinishTime) -> Unit,

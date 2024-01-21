@@ -8,13 +8,16 @@ import java.time.LocalDateTime
 
 @Composable
 fun EditorScreen(
+    eventId: Long?,
+    eventCardColor: String?,
     onNavigateBack: () -> Unit,
 ) {
     EditorScreenContent(
         state = EditorScreenState.Success.EditMode(
             DetailedEventUiModel(
-                color = Color.Green, event = Event(
-                    id = 1,
+                color = if (eventCardColor != null) Color(eventCardColor.toULong()) else Color.Transparent,
+                event = Event(
+                    id = eventId ?: -1,
                     name = "qwerty",
                     description = "А зачем убирать явное создание вьюхолдера в onCreateViewHolder? Ресайклер же перед вызовом onCreateViewHolder лезет в пул. И если не находит нужный тип - вызывает уже onCreateViewHolder. А проверку на присутствие вьюхолдера внутри пула я не могу, да и незачем: ресайклер сам под капотом делает эту проверку.\n" +
                             "Непонятно почему он не берет те вьюхолдеры, которые создаю заранее. С вьютайпом не ошибся, по логам вижу",

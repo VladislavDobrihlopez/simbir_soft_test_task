@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-class DiaryRepositoryImpl(
+class DiaryRepositoryImpl @Inject constructor(
     private val eventsDao: EventsDao,
     private val coroutineDispatcher: CoroutineDispatcher
 ) : DiaryRepository {
