@@ -1,23 +1,32 @@
 package com.dobrihlopez.simbir_soft_test_task.ioc
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
+import com.dobrihlopez.simbir_soft_test_task.ioc.module.CommonModule
+import com.dobrihlopez.simbir_soft_test_task.ioc.module.DataModule
+import com.dobrihlopez.simbir_soft_test_task.ioc.module.DomainModule
+import com.dobrihlopez.simbir_soft_test_task.ioc.module.ViewModelModule
+import com.dobrihlopez.simbir_soft_test_task.ioc.scope.ApplicationScope
 import com.dobrihlopez.simbir_soft_test_task.presentation.ViewModelFactory
 import dagger.BindsInstance
 import dagger.Component
-import javax.inject.Singleton
 
-@Singleton
-@Component(modules = [DataModule::class, DomainModule::class, ViewModelModule::class])
+@ApplicationScope
+@Component(
+    modules = [
+        ViewModelModule::class,
+        DataModule::class,
+        DomainModule::class,
+        CommonModule::class
+    ]
+)
 interface AppComponent {
-    fun getViewModelFactory(): ViewModelFactory
-    fun editorComponentBuilder(): EditorScreenSubcomponent.Builder
+    fun viewModelsFactory(): ViewModelFactory
+    fun editorComponentBuilder(): EditorScreenSubcomponent.Factory
 
-    @Component.Builder
-    interface Builder {
-        @BindsInstance
-        fun context(context: Context): Builder
-
-        fun build(): AppComponent
+    @Component.Factory
+    interface Factory {
+        fun create(
+            @BindsInstance context: Context,
+        ): AppComponent
     }
 }

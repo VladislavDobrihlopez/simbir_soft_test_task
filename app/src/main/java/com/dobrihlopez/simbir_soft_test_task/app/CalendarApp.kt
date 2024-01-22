@@ -8,8 +8,8 @@ import com.dobrihlopez.simbir_soft_test_task.ioc.AppComponent
 import com.dobrihlopez.simbir_soft_test_task.ioc.DaggerAppComponent
 
 class CalendarApp : Application() {
-    val component by lazy {
-        DaggerAppComponent.builder().context(applicationContext).build()
+    val component: AppComponent by lazy {
+        DaggerAppComponent.factory().create(this)
     }
 }
 

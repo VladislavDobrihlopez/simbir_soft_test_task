@@ -54,7 +54,7 @@ fun ScheduleChart(
     onTransformationChange: (VisibleItemsNumber, ScrollPos) -> Unit,
     onTouchItem: (BriefEventUiModel, Color) -> Unit,
     onUpdateItem: (BriefEventUiModel, StartTime, FinishTime) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
     val alphaOnSurfaceColor = scheme.onSurface.copy(alpha = 0.33f)
@@ -63,9 +63,11 @@ fun ScheduleChart(
     val chartState by state
 
     val transformableState =
-        rememberTransformableState(onTransformation = { zoomChange: Float,
-                                                        panChange: Offset,
-                                                        _: Float ->
+        rememberTransformableState(onTransformation = {
+                zoomChange: Float,
+                panChange: Offset,
+                _: Float,
+            ->
             val newNumberOfVisibleItems =
                 ((1f / zoomChange) * chartState.visibleHourBlocks)
                     .roundToInt()
@@ -238,7 +240,7 @@ data class ScheduleChartState(
         Pair(Color.Red, Color.White),
         Pair(Color.Blue, Color.White),
         Pair(Color.Yellow, Color.Black),
-    )
+    ),
 ) {
     val componentWidth: Float
         get() = componentSize.width.toFloat()
@@ -306,7 +308,7 @@ data class ScheduleChartState(
 
     fun convertOffsetYChangeToTime(
         changeAmount: Float,
-        eventUiModel: BriefEventUiModel
+        eventUiModel: BriefEventUiModel,
     ): Pair<StartTime, FinishTime>? {
         return try {
             val minutesToBeAdded =
@@ -336,14 +338,14 @@ data class ScheduleChartState(
         fun calculateElevations(events: List<BriefEventUiModel>): EventsToElevation {
             fun doesInclude(
                 firstEvent: Pair<StartTime, FinishTime>,
-                secondEvent: Pair<StartTime, FinishTime>
+                secondEvent: Pair<StartTime, FinishTime>,
             ): Boolean {
                 return firstEvent.first >= secondEvent.first && firstEvent.second < secondEvent.second
             }
 
             fun doesOverlap(
                 firstEvent: Pair<StartTime, FinishTime>,
-                secondEvent: Pair<StartTime, FinishTime>
+                secondEvent: Pair<StartTime, FinishTime>,
             ): Boolean {
                 return firstEvent.first >= secondEvent.first && firstEvent.first < secondEvent.second && firstEvent.second > secondEvent.second
             }

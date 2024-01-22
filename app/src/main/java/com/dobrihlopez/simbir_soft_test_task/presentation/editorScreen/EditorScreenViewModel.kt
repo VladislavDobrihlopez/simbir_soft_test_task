@@ -16,8 +16,8 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 class EditorScreenViewModel @Inject constructor(
-    @NamedId private val eventNamedId: Long?,
-    @NamedCardColor private val stringifiedColor: String?,
+    private val eventNamedId: Long?,
+    private val stringifiedColor: String?,
     private val getDetailedEventUseCase: GetDetailedEventUseCase,
     private val createEventUseCase: CreateEventUseCase,
     private val updateEventUseCase: UpdateEventUseCase,

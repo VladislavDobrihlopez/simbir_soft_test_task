@@ -168,7 +168,8 @@ fun EditorScreenContent(
                             },
                             onNewFinishTime = {
 
-                            }
+                            },
+                            onSaveEvent = {}//onSaveEvent
                         )
                     }
                 }
@@ -189,7 +190,8 @@ private fun ColumnScope.SuccessScreenState(
     onStartTimeTouch: () -> Unit,
     onFinishTimeTouch: () -> Unit,
     onNewStartTime: (LocalTime) -> Unit,
-    onNewFinishTime: (LocalTime) -> Unit
+    onNewFinishTime: (LocalTime) -> Unit,
+    onSaveEvent: () -> Unit
 ) {
     val spacing = LocalSpacing.current
     val startPicker = rememberTimePickerState()
@@ -232,7 +234,9 @@ private fun ColumnScope.SuccessScreenState(
 
     Button(
         modifier = Modifier.align(Alignment.End),
-        onClick = { },
+        onClick = {
+
+        },
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer

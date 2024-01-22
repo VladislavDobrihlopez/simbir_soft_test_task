@@ -3,11 +3,13 @@ package com.dobrihlopez.simbir_soft_test_task.domain
 import com.dobrihlopez.simbir_soft_test_task.domain.model.Event
 import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishDateTime
 import com.dobrihlopez.simbir_soft_test_task.domain.model.StartDateTime
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
 
 interface DiaryRepository {
-    fun getEvents(): StateFlow<List<Event>>
+    fun getEvents(): SharedFlow<List<Event>>
+    suspend fun askForCurrentEvents()
     suspend fun getDetailedEvent(eventId: Long): Event
     suspend fun updateEvent(event: Event)
     suspend fun updateEventDuration(
