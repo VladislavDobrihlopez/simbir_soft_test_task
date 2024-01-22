@@ -2,16 +2,16 @@ package com.dobrihlopez.simbir_soft_test_task.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.dobrihlopez.simbir_soft_test_task.ioc.scope.ApplicationScope
 import javax.inject.Inject
 import javax.inject.Provider
-import javax.inject.Singleton
 
+@ApplicationScope
 @Suppress("UNCHECKED_CAST")
-@Singleton
 class ViewModelFactory @Inject constructor(
-    private val viewModels: @JvmSuppressWildcards Map<String, Provider<ViewModel>>, // viwmodel name to its instance
+    private val viewModels: @JvmSuppressWildcards Map<Class<out ViewModel>, Provider<ViewModel>>,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return viewModels[modelClass.simpleName] as T
+        return viewModels[modelClass]?.get() as T
     }
 }

@@ -9,3 +9,11 @@ annotation class NamedId
 @Qualifier
 @Retention
 annotation class NamedCardColor
+
+@Qualifier
+@Retention
+annotation class DispatcherIO
+
+@Qualifier
+@Retention
+annotation class DispatcherMain

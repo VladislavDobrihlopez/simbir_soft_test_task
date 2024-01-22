@@ -1,20 +1,18 @@
 package com.dobrihlopez.simbir_soft_test_task.ioc
 
+import com.dobrihlopez.simbir_soft_test_task.ioc.module.EditorModule
+import com.dobrihlopez.simbir_soft_test_task.presentation.ViewModelFactory
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@Subcomponent
+@Subcomponent(modules = [EditorModule::class])
 interface EditorScreenSubcomponent {
-    @Subcomponent.Builder
-    interface Builder {
-        @BindsInstance
-        @NamedId
-        fun eventId(namedId: Long? = null): Builder
-
-        @BindsInstance
-        @NamedCardColor
-        fun eventCardColor(value: String? = null): Builder
-
-        fun create(): EditorScreenSubcomponent
+    fun viewModelsFactory(): ViewModelFactory
+    @Subcomponent.Factory
+    interface Factory {
+        fun create(
+            @BindsInstance id: Long?,
+            @BindsInstance cardColor: String?,
+        ): EditorScreenSubcomponent
     }
 }

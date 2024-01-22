@@ -12,7 +12,7 @@ import java.time.LocalDate
 fun CalendarScreen(
     onNavigateToDetailsScreen: (EventId, Color) -> Unit,
     onCreateNewEvent: (LocalDate) -> Unit,
-    viewModel: CalendarViewModel = viewModel(factory = getComponent().getViewModelFactory()),
+    viewModel: CalendarViewModel = viewModel(factory = getComponent().viewModelsFactory()),
 ) {
     // viewmodel initialization
     // side effects
@@ -20,6 +20,18 @@ fun CalendarScreen(
     CalendarScreenContent(
         state = state,
         onDisplayEventDetails = onNavigateToDetailsScreen,
-        onCreateNewEvent = onCreateNewEvent
+        onCreateNewEvent = onCreateNewEvent,
+        onUpdateEvent = { event, start, finish ->
+            viewModel.onEvent(CalendarScreenEvent.OnUpdateItemTime(event, start, finish))
+        },
+        onGoToNextDate = {
+            viewModel.onEvent(CalendarScreenEvent.OnGoToNextDate)
+        },
+        onGoToPreviousDate = {
+            viewModel.onEvent(CalendarScreenEvent.OnGoToPreviousDate)
+        },
+        onSelectDate = { date ->
+            viewModel.onEvent(CalendarScreenEvent.OnSelectNewDate(date))
+        }
     )
 }

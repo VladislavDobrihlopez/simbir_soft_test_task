@@ -7,20 +7,67 @@ import com.dobrihlopez.simbir_soft_test_task.domain.model.Event
 import com.dobrihlopez.simbir_soft_test_task.domain.model.FinishDateTime
 import com.dobrihlopez.simbir_soft_test_task.domain.model.StartDateTime
 import com.dobrihlopez.simbir_soft_test_task.domain.util.assertNotOnUiThread
+import com.dobrihlopez.simbir_soft_test_task.ioc.DispatcherIO
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 class DiaryRepositoryImpl @Inject constructor(
     private val eventsDao: EventsDao,
-    private val coroutineDispatcher: CoroutineDispatcher
+    @DispatcherIO private val coroutineDispatcher: CoroutineDispatcher,
 ) : DiaryRepository {
-    override fun getEvents(): StateFlow<List<Event>> {
-//        return eventsDao.getEvents()
-        return MutableStateFlow(listOf())
+    init {
+        CoroutineScope(coroutineDispatcher).launch {
+            val dataEvents = buildList {
+                repeat(3) {
+                    add(
+                        Event(
+                            id = it.toLong(),
+                            name = "Some name $it",
+                            description = "Some description $it",
+                            dateStart = LocalDateTime.now().minusHours(it * 2L),
+                            dateFinish = LocalDateTime.now().minusHours(it.toLong())
+                        )
+                    )
+                }
+            }
+
+            dataEvents.forEach {
+                createEvent(
+                    name = it.name,
+                    description = it.description,
+                    startDateTime = it.dateStart,
+                    finishDateTime = it.dateFinish
+                )
+            }
+
+            eventsDao.getEvents().collect { events ->
+                eventsFlow.emit(events.map { it.toEvent() })
+            }
+        }
+    }
+
+    private val eventsFlow = MutableSharedFlow<List<Event>>(replay = 1)
+
+    override fun getEvents(): SharedFlow<List<Event>> {
+        return eventsFlow
+//        return MutableStateFlow(listOf())
+    }
+
+    override suspend fun askForCurrentEvents() {
+        switchThread {
+            eventsDao.getEvents().take(1).collect {
+                eventsFlow.emit(it.map { it.toEvent() })
+            }
+        }
     }
 
     override suspend fun getDetailedEvent(eventId: Long): Event {
@@ -65,7 +112,7 @@ class DiaryRepositoryImpl @Inject constructor(
     override suspend fun updateEventDuration(
         eventId: Long,
         startDateTime: StartDateTime,
-        finishDateTime: FinishDateTime
+        finishDateTime: FinishDateTime,
     ) {
         switchThread {
             eventsDao.updateEventDuration(eventId, startDateTime, finishDateTime)
@@ -73,7 +120,7 @@ class DiaryRepositoryImpl @Inject constructor(
     }
 
     private suspend inline fun <T> switchThread(
-        crossinline contract: suspend () -> T
+        crossinline contract: suspend () -> T,
     ): T {
         return withContext(coroutineDispatcher) {
             /*

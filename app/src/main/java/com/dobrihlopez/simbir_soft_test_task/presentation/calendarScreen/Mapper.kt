@@ -12,3 +12,12 @@ fun BriefEventUiModel.toEvent(): Event {
         dateFinish = this.dateFinish
     )
 }
+
+fun Event.toBriefEventUiModel(): BriefEventUiModel {
+    return BriefEventUiModel(
+        id = this.id,
+        name = this.name,
+        dateStart = this.dateStart,
+        dateFinish = this.dateFinish
+    )
+}

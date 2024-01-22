@@ -34,6 +34,7 @@ import com.dobrihlopez.simbir_soft_test_task.R
 import com.dobrihlopez.simbir_soft_test_task.app.theme.LocalSpacing
 import com.dobrihlopez.simbir_soft_test_task.app.theme.Simbir_soft_test_taskTheme
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -43,7 +44,7 @@ fun WeekSelector(
     onMoveToPreviousDate: () -> Unit,
     onMoveToNextDate: () -> Unit,
     onSelectNewDay: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val selectorState = state.value
     require(selectorState.weekData.size == WeekSelectorState.DAYS_IN_WEEK)
@@ -133,11 +134,60 @@ private fun SelectedItem(date: LocalDate, onTouch: () -> Unit, isSelected: Boole
     }
 }
 
-data class WeekSelectorState(val weekData: List<LocalDate>, val selectedDate: LocalDate) {
+data class WeekSelectorState(
+    var weekData: List<LocalDate>,
+    val selectedDate: LocalDate,
+) {
+    fun getUpdatedState(newSelectedDate: LocalDate): WeekSelectorState {
+        val newWeek = calculateWeek(weekData, newSelectedDate)
+        return this.copy(weekData = newWeek, selectedDate = newSelectedDate)
+    }
+
     companion object {
-        const val DAYS_IN_WEEK = 7
+        const val DAYS_IN_WEEK = 5
         const val DAYS_TO_DISPLAY_FOR_PORTRAIT_MODE = 5
         const val DAYS_TO_DISPLAY_FOR_ALBUM_MODE = 7
+
+        fun calculateWeek(
+            weekData: List<LocalDate> = listOf(),
+            newDate: LocalDate,
+        ): List<LocalDate> {
+            if (weekData.isEmpty()) {
+                return buildList {
+                    add(LocalDate.now())
+                    repeat(4) { index ->
+                        add(LocalDate.now().plusDays((index + 1).toLong()))
+                    }
+                }
+            }
+
+            require(weekData.size == DAYS_IN_WEEK)
+
+            val leftMost = weekData.first()
+            val rightMost = weekData.last()
+
+            return when (newDate) {
+                leftMost.minusDays(1) -> {
+                    buildList {
+                        repeat(5) { day ->
+                            add(newDate.minusDays(4L - day))
+                        }
+                    }
+                }
+
+                rightMost.plusDays(1) -> {
+                    buildList {
+                        repeat(5) { day ->
+                            add(newDate.plusDays(day.toLong()))
+                        }
+                    }
+                }
+
+                else -> {
+                    weekData
+                }
+            }
+        }
     }
 }
 
